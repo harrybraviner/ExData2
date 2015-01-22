@@ -11,7 +11,7 @@ if(!file.exists(BaltimoreTableFilename)){
     if(!file.exists(zipFilename)){
       print(paste("Unable to find the data in the working directory, will download from",
                   dataURL, sep=" "))
-      download.file(, method = "wget")
+      download.file(url = dataURL, destfile = zipFilename, method = "wget")
     } else {
       print("Found file exdata-data-NEI_data.zip locally, will use this.");
     }
@@ -41,7 +41,6 @@ BaltimoreTable$EkT <- BaltimoreTable$Emissions/1e3
 
 print("Plotting Baltimore emissions by type")
 library(ggplot2)
-png(filename = "plot3.png", width = 480, height = 480)
 
 emissionsByType <- aggregate(EkT ~ type + year, data = BaltimoreTable,
                              FUN = sum)
@@ -55,8 +54,8 @@ emissionsPlot <- emissionsPlot + labs(x = "Year", y = "PM2.5 / Kilotons",
 									                    title = "Total PM2.5 emissions per year\nin Baltimore, by source",
                                       color = "Source type")
 emissionsPlot <- emissionsPlot + theme_bw()
-emissionsPlot <- emissionsPlot + theme(legend.justification=c(1,1), legend.position = c(0.97, 0.97))
+emissionsPlot <- emissionsPlot + theme(legend.justification=c(1,1), legend.position = c(0.97, 0.99))
 
 emissionsPlot
 
-dev.off()
+ggsave(file = "plot3.png", width=5, height=5, units = "in")

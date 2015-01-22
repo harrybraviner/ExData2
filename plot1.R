@@ -9,7 +9,7 @@ if(!file.exists(summaryDataFilename) | !file.exists(codeDataFilename)){
   if(!file.exists(zipFilename)){
     print(paste("Unable to find the data in the working directory, will download from",
                 dataURL, sep=" "))
-    download.file(, method = "wget")
+    download.file(url = dataURL, destfile = zipFilename, method = "wget")
   } else {
     print("Found file exdata-data-NEI_data.zip locally, will use this.");
   }
@@ -24,7 +24,7 @@ NEI <- readRDS(summaryDataFilename)
 print("Plotting total emissions vs year")
 EvsY <- tapply(NEI$Emissions, NEI$year, FUN = sum)
 
-png(filename = "plot2.png", width = 480, height = 480)
+png(filename = "plot1.png", width = 480, height = 480)
 
 plot(names(EvsY), EvsY/(1e6), xlab = "Year",
      ylab = "PM2.5 emission / Megatons", type = "b", pch = 19, axes=F,

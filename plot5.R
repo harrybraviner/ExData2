@@ -15,7 +15,7 @@ if(!file.exists(BaltimoreTableFilename)){
     if(!file.exists(zipFilename)){
       print(paste("Unable to find the data in the working directory, will download from",
                   dataURL, sep=" "))
-      download.file(, method = "wget")
+      download.file(url = dataURL, destfile = zipFilename, method = "wget")
     } else {
       print("Found file exdata-data-NEI_data.zip locally, will use this.");
     }

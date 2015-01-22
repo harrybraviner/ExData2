@@ -9,7 +9,7 @@ if(!file.exists(summaryDataFilename) | !file.exists(codeDataFilename)){
   if(!file.exists(zipFilename)){
     print(paste("Unable to find the data in the working directory, will download from",
                 dataURL, sep=" "))
-    download.file(, method = "wget")
+    download.file(url = dataURL, destfile = zipFilename, method = "wget")
   } else {
     print("Found file exdata-data-NEI_data.zip locally, will use this.");
   }
@@ -42,18 +42,17 @@ emissionsByRegion <- aggregate(EkT ~ Region + year,
 
 library(ggplot2)
 
-png(filename = "plot6.png", width = 480, height = 480)
 emissionsPlot <- ggplot(emissionsByRegion, aes(year, EkT))
 emissionsPlot <- emissionsPlot + geom_line(aes(color = emissionsByRegion$Region, linetype = emissionsByRegion$Region))
 emissionsPlot <- emissionsPlot + geom_point(aes(color = emissionsByRegion$Region), size = 2.5)
 emissionsPlot <- emissionsPlot + scale_linetype_manual(name = "Region", values = c("solid", "dashed"))
 emissionsPlot <- emissionsPlot + scale_color_hue(name = "Region")
 emissionsPlot <- emissionsPlot + labs(x = "Year", y = "PM2.5 / Kilotons",
-									                    title = "Total PM2.5 emissions per year",
+									                    title = "Motor vehicle PM2.5 emissions per year",
                                       color = "Source type")
 emissionsPlot <- emissionsPlot + theme_bw()
 emissionsPlot <- emissionsPlot + theme(legend.justification=c(1,1), legend.position = c(0.97, 0.7))
 
 emissionsPlot
 
-dev.off()
+ggsave(file = "plot6.png", width = 5, height = 5, units = "in")
