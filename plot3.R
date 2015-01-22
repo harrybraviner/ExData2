@@ -22,7 +22,7 @@ if(!file.exists(BaltimoreTableFilename)){
   print("Reading in data (may take some time)")
   NEI <- readRDS(summaryDataFilename)
 
-  BaltimoreTable <- NEI["fips" == "24510", ]
+  BaltimoreTable <- NEI[NEI$fips == "24510", ]
   
   print("Read data, saving the Baltimore data for later re-use")
   saveRDS(BaltimoreTable, file = BaltimoreTableFilename)
@@ -31,10 +31,32 @@ if(!file.exists(BaltimoreTableFilename)){
   BaltimoreTable <- readRDS(BaltimoreTableFilename)
 }
 
-BaltimoreEmissions <- tapply(BaltimoreTable$Emissions[BaltimoreTable$fips == "24510"],
-                             BaltimoreTable$year[BaltimoreTable$fips == "24510"], FUN = sum)
-
+BaltimoreTable$type <- as.factor(BaltimoreTable$type)
+levels(BaltimoreTable$type)[which(levels(BaltimoreTable$type) == "POINT")] <- "Point"
+levels(BaltimoreTable$type)[which(levels(BaltimoreTable$type) == "NONPOINT")] <- "Non-point"
+levels(BaltimoreTable$type)[which(levels(BaltimoreTable$type) == "ON-ROAD")] <- "On-road"
+levels(BaltimoreTable$type)[which(levels(BaltimoreTable$type) == "NON-ROAD")] <- "Non-road"
+# Make a columns for emissions in thousands of tons
+BaltimoreTable$EkT <- BaltimoreTable$Emissions/1e3
 
 print("Plotting Baltimore emissions by type")
-emissionsByType <- aggregate(Emissions ~ type + year, data = BaltimoreTable,
-                             )
+library(ggplot2)
+png(filename = "plot3.png", width = 480, height = 480)
+
+emissionsByType <- aggregate(EkT ~ type + year, data = BaltimoreTable,
+                             FUN = sum)
+
+emissionsPlot <- ggplot(emissionsByType, aes(year, EkT))
+emissionsPlot <- emissionsPlot + geom_line(aes(color = emissionsByType$type, linetype = emissionsByType$type))
+emissionsPlot <- emissionsPlot + geom_point(aes(color = emissionsByType$type), size = 2.5)
+emissionsPlot <- emissionsPlot + scale_linetype_manual(name = "Source type", values = c("solid", "dashed", "dotted", "dotdash"))
+emissionsPlot <- emissionsPlot + scale_color_hue(name = "Source type")
+emissionsPlot <- emissionsPlot + labs(x = "Year", y = "PM2.5 / Kilotons",
+									                    title = "Total PM2.5 emissions per year\nin Baltimore, by source",
+                                      color = "Source type")
+emissionsPlot <- emissionsPlot + theme_bw()
+emissionsPlot <- emissionsPlot + theme(legend.justification=c(1,1), legend.position = c(0.97, 0.97))
+
+emissionsPlot
+
+dev.off()

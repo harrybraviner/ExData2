@@ -1,3 +1,7 @@
+# Methodology for searching for 'emissions from motor vehicle sources'
+#
+# I will take a source of type 'ON-ROAD' to be a motor vehicle source
+
 WD <- getwd()
 summaryDataFilename <- paste(WD, "summarySCC_PM25.rds", sep="/")
 codeDataFilename <- paste(WD, "Source_Classification_Code.rds", sep="/")
@@ -31,18 +35,15 @@ if(!file.exists(BaltimoreTableFilename)){
   BaltimoreTable <- readRDS(BaltimoreTableFilename)
 }
 
-BaltimoreEmissions <- tapply(BaltimoreTable$Emissions[BaltimoreTable$fips == "24510"],
-                             BaltimoreTable$year[BaltimoreTable$fips == "24510"], FUN = sum)
+ORBaltimore <- BaltimoreTable[BaltimoreTable$type == "ON-ROAD",]
 
+EvsY <- aggregate(Emissions ~ year, data = ORBaltimore, FUN = sum)
 
-print("Plotting Baltimore emissions vs year")
-png(filename = "plot2.png", width = 480, height = 480)
-
-plot(names(BaltimoreEmissions), BaltimoreEmissions/(1e3), xlab = "Year",
+png(filename = "plot5.png", width = 480, height = 480)
+plot(EvsY$year, EvsY$Emissions/(1e3), xlab = "Year",
      ylab = "PM2.5 emission / Kilotons", type = "b", pch = 19, axes=F,
-     main = "Total PM2.5 emissions per year from all sources\nin Baltimore")
+     main = "Total PM2.5 emissions per year from motor vehicle\nsources in Baltimore")
 
-axis(side = 1, at = unique(names(BaltimoreEmissions)))
-axis(side = 2, at = c(1.5, 2, 2.5, 3, 3.5))
-
+axis(side = 1, at = unique(EvsY$year))
+axis(side = 2, at = c(0.1, 0.15, 0.2, 0.25, 0.3, 0.35))
 dev.off()
