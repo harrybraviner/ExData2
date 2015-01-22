@@ -23,10 +23,14 @@ NEI <- readRDS(summaryDataFilename)
 
 print("Plotting total emissions vs year")
 EvsY <- tapply(NEI$Emissions, NEI$year, FUN = sum)
+
+png(filename = "plot2.png", width = 480, height = 480)
+
 plot(names(EvsY), EvsY/(1e6), xlab = "Year",
      ylab = "PM2.5 emission / Megatons", type = "b", pch = 19, axes=F,
      main = "Total PM2.5 emissions per year from all sources\nin the United States")
-axis(side = 1, at = unique(NEI$year))
+
+axis(side = 1, at = unique(names(EvsY)))
 axis(side = 2, at = floor(seq(from = ceiling(range(EvsY)[1]/1e6-1), to = floor(range(EvsY)[2]/1e6+1), length=6)))
 
-# FIXME - code to do output to a file
+dev.off()
